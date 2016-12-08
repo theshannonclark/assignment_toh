@@ -4,15 +4,38 @@ class TowerOfHanoi
   end
 
   def play
-    loop do
-      print_instructions
-
-      break if game_over?
+    print_instructions
+    move = get_next_move
+    while not game_over? and not move =~ /quit/i
+      if @board.valid_move?(move)
+        @board.move(move)
+        render
+      end
+      move = get_next_move
     end
   end
 
+  def render
+    @board.render
+  end
+
+  def get_next_move
+    move = ""
+    loop do
+      print "Enter move > "
+      move = STDIN.gets.strip
+
+      break if valid_command?(move)
+    end
+    return move
+  end
+
+  def valid_command?(command)
+    command =~ /quit/i or command =~ /^\d,\s?\d$/
+  end
+
   def game_over?
-    true
+    false
   end
 
   def print_instructions
@@ -20,7 +43,7 @@ class TowerOfHanoi
     puts "Instructions:"
     puts "Enter where you'd like to move from and to in the format '1,3'. Enter 'q' to quit."
 
-    @board.render
+    render
   end
 end
 
@@ -35,6 +58,28 @@ class Board
   def render
     puts "Current board:"
     puts "#{@towers[0]} #{@towers[1]} #{@towers[2]}"
+  end
+
+  def parse_move(move)
+    parts = move.split(",")
+    return parts[0].strip.to_i - 1, parts[1].strip.to_i - 1
+  end
+
+  def valid_move?(move)
+    from, to = parse_move(move)
+    valid = true
+    if (not (0..2).include?(from)) or (not (0..2).include?(to))
+      valid = false
+    elsif @towers[from] == 0
+      valid = false
+    end
+    return valid
+  end
+
+  def move(move)
+    from, to = parse_move(move)
+    @towers[from] -= 1
+    @towers[to] += 1
   end
 end
 
