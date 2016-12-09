@@ -6,11 +6,12 @@ class TowerOfHanoi
   def play
     print_instructions
     move = get_next_move
-    while not game_over? and not move =~ /quit/i
+    while not move =~ /quit/i
       if @board.valid_move?(move)
         @board.move(move)
         render
       end
+      break if game_over?
       move = get_next_move
     end
   end
@@ -35,29 +36,34 @@ class TowerOfHanoi
   end
 
   def game_over?
-    false
+    @board.game_over?
   end
 
   def print_instructions
     puts "Welcome to Tower of Hanoi!"
     puts "Instructions:"
-    puts "Enter where you'd like to move from and to in the format '1,3'. Enter 'q' to quit."
+    puts "Enter where you'd like to move from and to in the format '1,3'. Enter 'quit' to exit."
 
     render
   end
 end
 
 class Board
-  attr_reader :num_blocks
-
   def initialize(num_blocks)
     @num_blocks = num_blocks
-    @towers = [@num_blocks, 0, 0]
+    @towers = [[], [], []]
+    1.upto(num_blocks).each do |i|
+      @towers[0].push(i)
+    end
   end
 
   def render
-    puts "Current board:"
+    puts "Current board:\n"
     puts "#{@towers[0]} #{@towers[1]} #{@towers[2]}"
+  end
+
+  def game_over?
+    @towers[1].length == @num_blocks or @towers[2].length == @num_blocks
   end
 
   def parse_move(move)
@@ -70,7 +76,9 @@ class Board
     valid = true
     if (not (0..2).include?(from)) or (not (0..2).include?(to))
       valid = false
-    elsif @towers[from] == 0
+    elsif @towers[from].empty?
+      valid = false
+    elsif (not @towers[to].empty?) and (@towers[from][0] > @towers[to][0])
       valid = false
     end
     return valid
@@ -78,8 +86,8 @@ class Board
 
   def move(move)
     from, to = parse_move(move)
-    @towers[from] -= 1
-    @towers[to] += 1
+    disc = @towers[from].shift
+    @towers[to].unshift(disc)
   end
 end
 
