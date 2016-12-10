@@ -74,14 +74,22 @@ class Board
   def valid_move?(move)
     from, to = parse_move(move)
     valid = true
-    if (not (0..2).include?(from)) or (not (0..2).include?(to))
-      valid = false
-    elsif @towers[from].empty?
-      valid = false
-    elsif (not @towers[to].empty?) and (@towers[from][0] > @towers[to][0])
+    if invalid_tower_index?(from, to) or no_disc?(from) or from_disc_smaller?(from, to)
       valid = false
     end
     return valid
+  end
+
+  def invalid_tower_index?(from, to)
+    (not (0..2).include?(from)) or (not (0..2).include?(to))
+  end
+
+  def no_disc?(from)
+    @towers[from].empty?
+  end
+
+  def from_disc_smaller?(from, to)
+    (not @towers[to].empty?) and (@towers[from][0] > @towers[to][0])
   end
 
   def move(move)
