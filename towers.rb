@@ -74,7 +74,7 @@ class Board
   def valid_move?(move)
     from, to = parse_move(move)
     valid = true
-    if invalid_tower_index?(from, to) or no_disc?(from) or from_disc_smaller?(from, to)
+    if invalid_tower_index?(from, to) or no_disc?(from) or from_disc_larger?(from, to)
       valid = false
     end
     return valid
@@ -88,7 +88,7 @@ class Board
     @towers[from].empty?
   end
 
-  def from_disc_smaller?(from, to)
+  def from_disc_larger?(from, to)
     (not @towers[to].empty?) and (@towers[from][0] > @towers[to][0])
   end
 
